@@ -21,18 +21,38 @@ class ScoreController extends Controller
         return response()->json($score);
     }
     
-    public function levels()
+   public function levels(Request $request)
     {
-        $rows = DB::table('subject_level_stats')
-            ->select('subject','level','count')
-            ->orderBy('subject')
-            ->orderBy('level')
-            ->get();
+        // Nếu có bảng summary thì đọc từ đó
+        if (Schema::hasTable('subject_level_stats')) {
+            $rows = DB::table('subject_level_stats')
+                ->select('subject','level','count')
+                ->orderBy('subject')
+                ->orderBy('level')
+                ->get();
 
-        // Group theo subject
+            $report = [];
+            foreach ($rows as $row) {
+                $report[$row->subject][$row->level] = $row->count;
+            }
+            return response()->json($report);
+        }
+
+        // Nếu chưa có bảng summary, tính động trên student_scores
+        $subjects = [
+            'toan','ngu_van','ngoai_ngu',
+            'vat_li','hoa_hoc','sinh_hoc',
+            'lich_su','dia_li','gdcd'
+        ];
+
         $report = [];
-        foreach ($rows as $row) {
-            $report[$row->subject][$row->level] = $row->count;
+        foreach ($subjects as $subj) {
+            $report[$subj] = [
+                '>=8'  => DB::table('student_scores')->where($subj, '>=', 8)->count(),
+                '6-<8' => DB::table('student_scores')->where($subj, '>=', 6)->where($subj, '<', 8)->count(),
+                '4-<6' => DB::table('student_scores')->where($subj, '>=', 4)->where($subj, '<', 6)->count(),
+                '<4'   => DB::table('student_scores')->where($subj, '<', 4)->count(),
+            ];
         }
 
         return response()->json($report);
