@@ -21,8 +21,4 @@ RUN composer install --no-dev --optimize-autoloader
 EXPOSE 8000
 
 # 7. Khi container khởi động, chạy migrate rồi serve
-CMD php artisan migrate --force \
-    && php artisan migrate --force --path=/database/migrations/2025_05_23_000000_create_sessions_table.php \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan migrate --force  && php artisan serve --host=0.0.0.0 --port=8000
