@@ -7,6 +7,7 @@ use App\Models\StudentScore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class ScoreController extends Controller
 {
